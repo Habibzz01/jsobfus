@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🔓 JS Deobfuscator</title>
+
+  <!-- Font Awesome v6 (Free) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+  <!-- Google Fonts: Inter -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg-primary: #f8fafc;
+      --bg-secondary: #ffffff;
+      --text-primary: #1e293b;
+      --text-secondary: #64748b;
+      --accent: #10b981;
+      --accent-hover: #059669;
+      --border: #e2e8f0;
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      --transition: all 0.3s ease;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+      padding: 20px;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      animation: fadeIn 0.6s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .container {
+      width: 100%;
+      max-width: 960px;
+      margin: 40px auto;
+      background: var(--bg-secondary);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    header {
+      background: var(--accent);
+      color: white;
+      padding: 30px 30px 20px;
+      text-align: center;
+    }
+
+    header h1 {
+      font-weight: 700;
+      font-size: 28px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    header p {
+      color: rgba(255, 255, 255, 0.9);
+      font-weight: 400;
+      font-size: 15px;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .content {
+      padding: 30px;
+    }
+
+    .label {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    textarea {
+      width: 100%;
+      height: 200px;
+      padding: 16px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #f9fafb;
+      color: var(--text-primary);
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+      resize: vertical;
+      transition: var(--transition);
+      margin-bottom: 16px;
+    }
+
+    textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+      background: white;
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    button {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 15px;
+      font-weight: 500;
+      transition: var(--transition);
+      border: 1px solid transparent;
+    }
+
+    button.primary {
+      background: var(--accent);
+      color: white;
+    }
+
+    button.primary:hover {
+      background: var(--accent-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+
+    button.secondary {
+      background: white;
+      color: var(--text-primary);
+      border-color: var(--border);
+    }
+
+    button.secondary:hover {
+      background: #f1f5f9;
+      border-color: #cbd5e1;
+    }
+
+    .tab-container {
+      display: flex;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .tab {
+      padding: 12px 24px;
+      cursor: pointer;
+      font-weight: 500;
+      border-bottom: 3px solid transparent;
+      transition: var(--transition);
+    }
+
+    .tab.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      color: var(--text-secondary);
+      font-size: 14px;
+      border-top: 1px solid var(--border);
+      background: #f9fafb;
+    }
+
+    footer i {
+      color: var(--accent);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1><i class="fas fa-unlock"></i> JS Deobfuscator</h1>
+      <p>Bantu memahami kode JavaScript terobfuscate dengan analisis dan beautify</p>
+    </header>
+
+    <div class="content">
+      <div class="tab-container">
+        <div class="tab active" onclick="switchTab('deobfuscate')">
+          <i class="fas fa-unlock"></i> Deobfuscate
+        </div>
+        <div class="tab" onclick="switchTab('obfuscate')">
+          <i class="fas fa-lock"></i> Obfuscate
+        </div>
+      </div>
+
+      <div id="deobfuscate-tab">
+        <div class="label"><i class="fas fa-code"></i> Kode Terobfuscate</div>
+        <textarea id="obfuscatedInput" placeholder="Masukkan kode JavaScript terobfuscate di sini...">var _0x3f4c=['\x48\x61\x73\x69\x6c\x3a','\x42\x65\x73\x61\x72','\x4b\x65\x63\x69\x6c','\x6c\x6f\x67'];(function(_0x1e87de,_0x3f4c8a){var _0x3e0c8a=function(_0x3a89fc){while(--_0x3a89fc){_0x1e87de['push'](_0x1e87de['shift']());}};_0x3e0c8a(++_0x3f4c8a);}(_0x3f4c,0x1a0));var _0x3e0c=function(_0x1e87de,_0x3f4c8a){_0x1e87de=_0x1e87de-0x0;var _0x3e0c8a=_0x3f4c[_0x1e87de];return _0x3e0c8a;};function hitungRahasia(_0x2b8a9d,_0x3a89fc){var _0x5c90a0=_0x2b8a9d*_0x2b8a9d+_0x3a89fc*_0x3a89fc;console[_0x3e0c('0x3')](_0x3e0c('0x0')+_0x5c90a0);return _0x5c90a0>0x64?_0x3e0c('0x1'):_0x3e0c('0x2');}hitungRahasia(0x8,0x9);</textarea>
+
+        <div class="label"><i class="fas fa-random"></i> Hasil Deobfuscation</div>
+        <textarea id="deobfuscatedOutput" placeholder="Kode hasil deobfuscate akan muncul di sini..." readonly></textarea>
+
+        <div class="actions">
+          <button class="primary" onclick="deobfuscate()">
+            <i class="fas fa-sync-alt"></i> Deobfuscate
+          </button>
+          <button class="secondary" onclick="copyDeobfuscated()">
+            <i class="fas fa-copy"></i> Salin
+          </button>
+          <button class="secondary" onclick="clearDeobfuscate()">
+            <i class="fas fa-trash"></i> Bersihkan
+          </button>
+        </div>
+      </div>
+
+      <div id="obfuscate-tab" style="display: none;">
+        <div class="label"><i class="fas fa-code"></i> Kode Asli</div>
+        <textarea id="inputCode" placeholder="Masukkan kode JavaScript Anda di sini...">// Contoh kode
+function hitungRahasia(x, y) {
+  const hasil = x * x + y * y;
+  console.log("Hasil:", hasil);
+  return hasil > 100 ? "Besar" : "Kecil";
+}
+hitungRahasia(8, 9);
+    </textarea>
+
+        <div class="label"><i class="fas fa-random"></i> Hasil Obfuscation</div>
+        <textarea id="outputCode" placeholder="Kode hasil obfuscate akan muncul di sini..." readonly></textarea>
+
+        <div class="actions">
+          <button class="primary" onclick="obfuscate()">
+            <i class="fas fa-sync-alt"></i> Obfuscate
+          </button>
+          <button class="secondary" onclick="copyOutput()">
+            <i class="fas fa-copy"></i> Salin
+          </button>
+          <button class="secondary" onclick="clearObfuscate()">
+            <i class="fas fa-trash"></i> Bersihkan
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <i class="fas fa-info-circle"></i> Deobfuscation tidak selalu sempurna, tetapi membantu memahami kode terenkripsi.
+    </footer>
+  </div>
+
+  <!-- JavaScript Obfuscator Browser CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/javascript-obfuscator/dist/index.browser.js"></script>
+  
+  <!-- JS Beautifier untuk formatting -->
+  <script src="https://cdn.jsdelivr.net/npm/js-beautify@1.14.0/js/lib/beautify.js"></script>
+
+  <script>
+    function switchTab(tabName) {
+      if (tabName === 'deobfuscate') {
+        document.getElementById('deobfuscate-tab').style.display = 'block';
+        document.getElementById('obfuscate-tab').style.display = 'none';
+        document.querySelectorAll('.tab')[0].classList.add('active');
+        document.querySelectorAll('.tab')[1].classList.remove('active');
+      } else {
+        document.getElementById('deobfuscate-tab').style.display = 'none';
+        document.getElementById('obfuscate-tab').style.display = 'block';
+        document.querySelectorAll('.tab')[0].classList.remove('active');
+        document.querySelectorAll('.tab')[1].classList.add('active');
+      }
+    }
+
+    function deobfuscate() {
+      const input = document.getElementById("obfuscatedInput").value.trim();
+      if (!input) {
+        alert("Masukkan kode JavaScript terobfuscate terlebih dahulu!");
+        return;
+      }
+
+      try {
+        // Langkah 1: Coba evaluasi string escape sequences
+        let processedCode = input;
+        
+        // Decode hex escape sequences
+        processedCode = processedCode.replace(/\\x([0-9A-Fa-f]{2})/g, (match, p1) => {
+          return String.fromCharCode(parseInt(p1, 16));
+        });
+        
+        // Decode unicode escape sequences
+        processedCode = processedCode.replace(/\\u([0-9A-Fa-f]{4})/g, (match, p1) => {
+          return String.fromCharCode(parseInt(p1, 16));
+        });
+        
+        // Langkah 2: Coba evaluasi angka hex (0x...)
+        processedCode = processedCode.replace(/0x([0-9A-Fa-f]+)/g, (match, p1) => {
+          return parseInt(p1, 16);
+        });
+        
+        // Langkah 3: Format kode dengan js-beautify
+        const formattedCode = js_beautify(processedCode, {
+          indent_size: 2,
+          space_in_empty_paren: true
+        });
+        
+        document.getElementById("deobfuscatedOutput").value = formattedCode;
+      } catch (e) {
+        document.getElementById("deobfuscatedOutput").value = "❌ Error: " + e.message + "\n\nKode yang diproses sebagian:\n" + processedCode;
+      }
+    }
+
+    function obfuscate() {
+      const input = document.getElementById("inputCode").value.trim();
+      if (!input) {
+        alert("Masukkan kode JavaScript terlebih dahulu!");
+        return;
+      }
+
+      try {
+        const obfuscated = JavaScriptObfuscator.obfuscate(input, {
+          compact: true,
+          controlFlowFlattening: true,
+          deadCodeInjection: true,
+          stringArray: true,
+          stringArrayEncoding: ['base64'],
+          rotateStringArray: true,
+          shuffleStringArray: true,
+          splitStrings: true,
+          splitStringsChunkLength: 5,
+          identifierNamesGenerator: 'hexadecimal',
+          selfDefending: true,
+          numbersToExpressions: true,
+          simplify: true,
+          sourceMap: false
+        });
+
+        document.getElementById("outputCode").value = obfuscated.getObfuscatedCode();
+      } catch (e) {
+        document.getElementById("outputCode").value = "❌ Error: " + e.message;
+      }
+    }
+
+    function copyDeobfuscated() {
+      const output = document.getElementById("deobfuscatedOutput");
+      if (!output.value) {
+        alert("Tidak ada kode untuk disalin.");
+        return;
+      }
+      output.select();
+      document.execCommand("copy");
+      const btn = document.querySelector('#deobfuscate-tab .secondary i.fa-copy');
+      btn.className = 'fas fa-check';
+      setTimeout(() => {
+        btn.className = 'fas fa-copy';
+      }, 2000);
+    }
+
+    function copyOutput() {
+      const output = document.getElementById("outputCode");
+      if (!output.value) {
+        alert("Tidak ada kode untuk disalin.");
+        return;
+      }
+      output.select();
+      document.execCommand("copy");
+      const btn = document.querySelector('#obfuscate-tab .secondary i.fa-copy');
+      btn.className = 'fas fa-check';
+      setTimeout(() => {
+        btn.className = 'fas fa-copy';
+      }, 2000);
+    }
+
+    function clearDeobfuscate() {
+      document.getElementById("obfuscatedInput").value = "";
+      document.getElementById("deobfuscatedOutput").value = "";
+    }
+
+    function clearObfuscate() {
+      document.getElementById("inputCode").value = "";
+      document.getElementById("outputCode").value = "";
+    }
+  </script>
+</body>
+</html>
