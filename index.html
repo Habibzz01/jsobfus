@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript & Node.js Obfuscator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/javascript-obfuscator/dist/index.browser.js"></script>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            background-color: #2c2c2c;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+            width: 100%;
+            max-width: 800px;
+            border: 1px solid #444;
+        }
+        h1 {
+            text-align: center;
+            color: #4CAF50;
+            margin-bottom: 25px;
+            font-weight: 700;
+        }
+        .input-area, .output-area {
+            margin-bottom: 25px;
+        }
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 400;
+            color: #b0b0b0;
+        }
+        textarea, input[type="file"] {
+            width: 100%;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #555;
+            background-color: #252525;
+            color: #e0e0e0;
+            font-size: 14px;
+            box-sizing: border-box;
+            font-family: monospace;
+        }
+        textarea {
+            min-height: 200px;
+            resize: vertical;
+        }
+        button {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 6px;
+            background-color: #4CAF50;
+            color: white;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        button:active {
+            transform: scale(0.98);
+        }
+        .options {
+            background-color: #333;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+        }
+        .options h2 {
+            margin-top: 0;
+            font-size: 18px;
+            color: #ccc;
+            border-bottom: 1px solid #555;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .option-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .option-group label {
+            flex: 1;
+            margin: 0;
+            color: #ddd;
+        }
+        .option-group select, .option-group input[type="checkbox"] {
+            margin-left: 15px;
+        }
+        .copy-button {
+            display: block;
+            width: auto;
+            margin-top: 10px;
+            padding: 8px 15px;
+            background-color: #008CBA;
+            float: right;
+            font-size: 14px;
+        }
+        .copy-button:hover {
+            background-color: #007B9A;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 12px;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>JavaScript & Node.js Obfuscator</h1>
+
+        <div class="input-area">
+            <label for="file-input">Pilih File JavaScript (.js) atau Paste Kode di Bawah:</label>
+            <input type="file" id="file-input" accept=".js">
+            <textarea id="input-code" placeholder="Atau paste kode JavaScript Anda di sini..."></textarea>
+        </div>
+
+        <div class="options">
+            <h2>Opsi Obfuscation</h2>
+            <div class="option-group">
+                <label for="preset">Preset Keamanan:</label>
+                <select id="preset">
+                    <option value="low-obfuscation">Rendah</option>
+                    <option value="medium-obfuscation" selected>Sedang</option>
+                    <option value="high-obfuscation">Tinggi</option>
+                </select>
+            </div>
+             <div class="option-group">
+                <label for="string-array">Enkripsi String (String Array):</label>
+                <input type="checkbox" id="string-array" checked>
+            </div>
+            <div class="option-group">
+                <label for="rename-globals">Ubah Nama Variabel Global:</label>
+                <input type="checkbox" id="rename-globals">
+            </div>
+        </div>
+
+        <button id="obfuscate-btn">Obfuscate Now</button>
+
+        <div class="output-area">
+            <label for="output-code">Kode Hasil Obfuscate:</label>
+            <textarea id="output-code" readonly placeholder="Hasil akan ditampilkan di sini..."></textarea>
+            <button id="copy-btn" class="copy-button">Salin Kode</button>
+        </div>
+        
+        <div class="footer">
+            Dibuat menggunakan library javascript-obfuscator
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('file-input').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('input-code').value = e.target.result;
+                };
+                reader.readAsText(file);
+            }
+        });
+
+        document.getElementById('obfuscate-btn').addEventListener('click', function() {
+            const sourceCode = document.getElementById('input-code').value;
+            if (!sourceCode.trim()) {
+                alert('Silakan pilih file atau masukkan kode terlebih dahulu!');
+                return;
+            }
+
+            const preset = document.getElementById('preset').value;
+            const useStringArray = document.getElementById('string-array').checked;
+            const renameGlobals = document.getElementById('rename-globals').checked;
+
+            const options = {
+                compact: true,
+                controlFlowFlattening: true,
+                controlFlowFlatteningThreshold: 0.75,
+                deadCodeInjection: true,
+                deadCodeInjectionThreshold: 0.4,
+                debugProtection: false,
+                debugProtectionInterval: 0,
+                disableConsoleOutput: true,
+                identifierNamesGenerator: 'hexadecimal',
+                log: false,
+                numbersToExpressions: true,
+                renameGlobals: renameGlobals,
+                selfDefending: true,
+                simplify: true,
+                splitStrings: true,
+                splitStringsChunkLength: 10,
+                stringArray: useStringArray,
+                stringArrayEncoding: ['base64'],
+                stringArrayIndexShift: true,
+                stringArrayRotate: true,
+                stringArrayShuffle: true,
+                stringArrayWrappersCount: 2,
+                stringArrayWrappersType: 'variable',
+                stringArrayWrappersParametersMaxCount: 2,
+                transformObjectKeys: true,
+                unicodeEscapeSequence: false
+            };
+            
+            if (preset === 'high-obfuscation') {
+                options.controlFlowFlatteningThreshold = 1;
+                options.deadCodeInjectionThreshold = 1;
+            } else if (preset === 'low-obfuscation') {
+                options.controlFlowFlattening = false;
+                options.deadCodeInjection = false;
+                options.numbersToExpressions = false;
+                options.selfDefending = false;
+                options.splitStrings = false;
+            }
+
+            try {
+                const obfuscationResult = JavaScriptObfuscator.obfuscate(sourceCode, options);
+                document.getElementById('output-code').value = obfuscationResult.getObfuscatedCode();
+            } catch (error) {
+                console.error("Obfuscation Error:", error);
+                alert('Terjadi kesalahan saat obfuscate: ' + error.message);
+            }
+        });
+
+        document.getElementById('copy-btn').addEventListener('click', function() {
+            const outputCode = document.getElementById('output-code');
+            if (outputCode.value) {
+                outputCode.select();
+                document.execCommand('copy');
+                alert('Kode berhasil disalin ke clipboard!');
+            }
+        });
+    </script>
+</body>
+</html>
